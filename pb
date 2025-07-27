@@ -2,10 +2,23 @@
 
 # Determine if we're copying or pasting.
 cmd=$(basename "$0")
-action='copy'
-if [ "$cmd" = pbpaste ]; then
-    action='paste'
+action='paste'
+if [ "$cmd" = pbcopy ]; then
+    action='copy'
 fi
+
+# Program version.
+version='0.1.0'
+
+usage() {
+    cat <<EOF
+Usage: $cmd [options]
+
+    -pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
+    -V, --version          print version and exit
+    -h, --help             print this help and exit
+EOF
+}
 
 # Default pasteboard.
 pboard=clipboard
@@ -24,8 +37,19 @@ while [ $# -gt 0 ]; do
         shift
         ;;
 
+    -h | --help)
+        usage
+        exit 0
+        ;;
+
+    -V | --version)
+        echo "$cmd version $version"
+        exit 0
+        ;;
+
     -*)
         echo "$cmd: unknown option: $1" >&2
+        echo "Use '$cmd --help' for usage." >&2
         exit 2
         ;;
 
