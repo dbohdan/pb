@@ -66,7 +66,7 @@ done
 pboard_lc=$(printf "%s" "$pboard" | tr '[:upper:]' '[:lower]:')
 
 # Select platform.
-if [ "$(uname)" = Darwin ]; then
+if [ "$(uname)" = Darwin ] && [ -x /usr/bin/pbcopy ] && [ -x /usr/bin/pbpaste ]; then
     # macOS
     if [ "$action" = copy ]; then
         exec /usr/bin/pbcopy -pboard "$pboard"
@@ -87,7 +87,7 @@ elif [ -n "$TERMUX_VERSION" ] && command -v termux-clipboard-get >/dev/null 2>&1
         exec termux-clipboard-get
     fi
 
-elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
+elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
     # Wayland
     case "$pboard_lc" in
     clipboard)
