@@ -62,12 +62,12 @@ done
 pboard_lc=$(printf "%s" "$pboard" | tr '[:upper:]' '[:lower]:')
 
 # Select platform.
-if command -v pbcopy >/dev/null 2>&1 && [ "$(uname)" = Darwin ]; then
+if [ "$(uname)" = Darwin ]; then
     # macOS
     if [ "$action" = copy ]; then
-        exec pbcopy -pboard "$pboard"
+        exec /usr/bin/pbcopy -pboard "$pboard"
     else
-        exec pbpaste -pboard "$pboard"
+        exec /usr/bin/pbpaste -pboard "$pboard"
     fi
 
 elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
