@@ -14,7 +14,7 @@ usage() {
     cat <<EOF
 Usage: $cmd [options]
 
-    -p, (-)-pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
+    -p, (-)-pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Termux: 'clipboard'; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
     -V, --version                 print version and exit
     -h, --help                    print this help and exit
 EOF
@@ -70,6 +70,19 @@ if [ "$(uname)" = Darwin ]; then
         exec /usr/bin/pbpaste -pboard "$pboard"
     fi
 
+elif [ -n "$TERMUX_VERSION" ] && command -v termux-clipboard-get >/dev/null 2>&1 && command -v termux-clipboard-set >/dev/null 2>&1; then
+    # Termux (Android)
+    if [ "$pboard_lc" != "clipboard" ]; then
+        echo "$cmd: invalid pasteboard '$pboard' for Termux (only 'clipboard' is supported)" >&2
+        exit 2
+    fi
+
+    if [ "$action" = copy ]; then
+        exec termux-clipboard-set
+    else
+        exec termux-clipboard-get
+    fi
+
 elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1; then
     # Wayland
     case "$pboard_lc" in
@@ -122,6 +135,6 @@ elif [ -n "$DISPLAY" ] && command -v xsel >/dev/null 2>&1; then
     fi
 
 else
-    echo "$cmd: no supported clipboard utility found (pbcopy, wl-copy, or xsel)" >&2
+    echo "$cmd: no supported clipboard utility found (pbcopy, termux-clipboard-set, wl-copy, or xsel)" >&2
     exit 1
 fi
