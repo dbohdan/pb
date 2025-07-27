@@ -21,7 +21,11 @@ EOF
 }
 
 # Default pasteboard.
-pboard=clipboard
+if [ "$(uname)" = Darwin ]; then
+    pboard=general
+else
+    pboard=clipboard
+fi
 
 # Parse the optional `-pboard` flag.
 while [ $# -gt 0 ]; do
