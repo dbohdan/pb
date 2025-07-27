@@ -14,9 +14,9 @@ usage() {
     cat <<EOF
 Usage: $cmd [options]
 
-    -pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
-    -V, --version          print version and exit
-    -h, --help             print this help and exit
+    -p, (-)-pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
+    -V, --version                 print version and exit
+    -h, --help                    print this help and exit
 EOF
 }
 
@@ -26,7 +26,7 @@ pboard=clipboard
 # Parse the optional `-pboard` flag.
 while [ $# -gt 0 ]; do
     case "$1" in
-    -pboard)
+    -p | -pboard | --pboard)
         shift
         if [ $# -eq 0 ]; then
             echo "$cmd: missing argument for '-pboard'" >&2
