@@ -1,4 +1,6 @@
 #! /bin/sh
+# https://github.com/dbohdan/pb
+# License: MIT
 
 # Determine if we're copying or pasting.
 cmd=$(basename "$0")
