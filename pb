@@ -1,24 +1,35 @@
 #! /bin/sh
+# A copy and paste command for X11, Wayland, Termux, and macOS.
 # https://github.com/dbohdan/pb
 # License: MIT
+set -eu
 
-# Determine if we're copying or pasting.
 cmd=$(basename "$0")
-action='paste'
-if [ "$cmd" = pbcopy ]; then
-    action='copy'
-fi
-
+action=''
 # Program version.
-version='0.1.0'
+version='0.2.0'
 
 usage() {
-    cat <<EOF
-Usage: $cmd [options]
+    me=$cmd
+    if [ "$me" != pbcopy ] && [ "$me" != pbpaste ]; then
+        me="$me (copy|paste)"
+    fi
 
-    -p, (-)-pboard <pasteboard>   specify the pasteboard (macOS: 'general', 'ruler', etc.; Termux: 'clipboard'; Wayland: 'clipboard', 'primary'; X11: 'clipboard', 'primary', 'secondary')
-    -V, --version                 print version and exit
-    -h, --help                    print this help and exit
+    cat <<EOF
+Usage: $me [-h] [-V] [-p <pasteboard>]
+
+  -h, --help
+          Print this help and exit
+
+  -V, --version
+          Print version and exit
+
+  -p, -pboard, --pboard <pasteboard>
+          Specify the pasteboard:
+            - macOS: 'general', 'ruler', etc.
+            - Termux: 'clipboard'
+            - Wayland: 'clipboard', 'primary'
+            - X11: 'clipboard', 'primary', 'secondary'
 EOF
 }
 
@@ -29,13 +40,48 @@ else
     pboard=clipboard
 fi
 
-# Parse the optional `-pboard` flag.
+# Parse the priority command-line options for help and version.
+handle_help_and_version() {
+    while [ $# -gt 0 ]; do
+        case "$1" in
+        -h | --help)
+            usage
+            exit 0
+            ;;
+
+        -V | --version)
+            echo "pb version $version"
+            exit 0
+            ;;
+        esac
+
+        shift
+    done
+}
+
+handle_help_and_version "$@"
+
+# Determine if we're copying or pasting.
+if [ "$cmd" = pbcopy ]; then
+    action='copy'
+elif [ "$cmd" = pbpaste ]; then
+    action='paste'
+elif [ "${1:-}" = copy ] || [ "${1:-}" = paste ]; then
+    action=$1
+    shift
+else
+    echo "Start the program as 'pbcopy' or 'pbpaste' or specify the action 'copy' or 'paste' as the first argument"
+    exit 2
+fi
+
+# Parse regular command-line options.
 while [ $# -gt 0 ]; do
     case "$1" in
     -p | -pboard | --pboard)
+        flag=$1
         shift
         if [ $# -eq 0 ]; then
-            echo "$cmd: missing argument for '-pboard'" >&2
+            echo "$cmd: missing argument for '$flag'" >&2
             exit 2
         fi
 
@@ -43,31 +89,21 @@ while [ $# -gt 0 ]; do
         shift
         ;;
 
-    -h | --help)
-        usage
-        exit 0
-        ;;
-
-    -V | --version)
-        echo "$cmd version $version"
-        exit 0
-        ;;
-
     -*)
         echo "$cmd: unknown option: $1" >&2
-        echo "Use '$cmd --help' for usage." >&2
         exit 2
         ;;
 
     *)
-        break
+        echo "$cmd: unknown argument: $1" >&2
+        exit 2
         ;;
     esac
 done
 
 pboard_lc=$(printf "%s" "$pboard" | tr '[:upper:]' '[:lower]:')
 
-# Select platform.
+# Select and run the clipboard command.
 if [ "$(uname)" = Darwin ] && [ -x /usr/bin/pbcopy ] && [ -x /usr/bin/pbpaste ]; then
     # macOS
     if [ "$action" = copy ]; then
@@ -76,7 +112,7 @@ if [ "$(uname)" = Darwin ] && [ -x /usr/bin/pbcopy ] && [ -x /usr/bin/pbpaste ];
         exec /usr/bin/pbpaste -pboard "$pboard"
     fi
 
-elif [ -n "$TERMUX_VERSION" ] && command -v termux-clipboard-get >/dev/null 2>&1 && command -v termux-clipboard-set >/dev/null 2>&1; then
+elif [ -n "${TERMUX_VERSION:-}" ] && command -v termux-clipboard-get >/dev/null 2>&1 && command -v termux-clipboard-set >/dev/null 2>&1; then
     # Termux (Android)
     if [ "$pboard_lc" != "clipboard" ]; then
         echo "$cmd: invalid pasteboard '$pboard' for Termux (only 'clipboard' is supported)" >&2
@@ -89,7 +125,7 @@ elif [ -n "$TERMUX_VERSION" ] && command -v termux-clipboard-get >/dev/null 2>&1
         exec termux-clipboard-get
     fi
 
-elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
+elif [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-copy >/dev/null 2>&1 && command -v wl-paste >/dev/null 2>&1; then
     # Wayland
     case "$pboard_lc" in
     clipboard)
@@ -112,7 +148,7 @@ elif [ -n "$WAYLAND_DISPLAY" ] && command -v wl-copy >/dev/null 2>&1 && command 
         exec wl-paste $wl_flag
     fi
 
-elif [ -n "$DISPLAY" ] && command -v xsel >/dev/null 2>&1; then
+elif [ -n "${DISPLAY:-}" ] && command -v xsel >/dev/null 2>&1; then
     # X11
 
     case "$pboard_lc" in
@@ -141,6 +177,6 @@ elif [ -n "$DISPLAY" ] && command -v xsel >/dev/null 2>&1; then
     fi
 
 else
-    echo "$cmd: no supported clipboard utility found (pbcopy, termux-clipboard-set, wl-copy, or xsel)" >&2
+    echo "$cmd: no supported clipboard utilities found (pbcopy/pbpaste, termux-clipboard-get/termux-clipboard-set, wl-copy/wl-paste, or xsel)" >&2
     exit 1
 fi
