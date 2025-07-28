@@ -7,6 +7,21 @@ I am not a current Mac user, but I found `pbcopy` and `pbpaste` the best common 
 They are concise, memorable, and don't conflict with [POSIX `paste`](https://en.wikipedia.org/wiki/Paste_(Unix)).
 pb supports macOS, which already has `pbcopy` and `pbpaste`, for uniformity.
 
+## Examples
+
+```shell
+# Copy file contents.
+pbcopy < file.txt
+# or
+pb copy < file.txt
+
+# ROT13 the clipboard.
+pbpaste | rot13 | pbcopy
+
+# Paste to a file.
+pbpaste > output.txt
+```
+
 ## Usage
 
 The `copy` or `paste` argument isn't necessary when you start the program as `pbcopy` or `pbpaste`.
@@ -64,6 +79,9 @@ pkg install termux-api
 You may need to add `~/.local/bin/` to `PATH`.
 
 ```shell
+git clone https://github.com/dbohdan/pb
+cd pb/
+
 install -d ~/.local/bin/
 install pb ~/.local/bin/
 cd ~/.local/bin/
