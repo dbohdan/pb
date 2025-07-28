@@ -8,7 +8,7 @@ They are concise, memorable, and don't conflict with [POSIX `paste`](https://en.
 
 ## Usage
 
-The `copy` or `paste` argument isn't necessary when the program is called `pbcopy` or `pbpaste`.
+The `copy` or `paste` argument isn't necessary when you start the program as `pbcopy` or `pbpaste`.
 
 ```none
 Usage: pb (copy|paste) [-h] [-V] [-p <pasteboard>]
@@ -27,11 +27,43 @@ Usage: pb (copy|paste) [-h] [-V] [-p <pasteboard>]
             - X11: 'clipboard', 'primary', 'secondary'
 ```
 
+## Requirements
+
+pb requires access to clipboard utilities;
+which ones, depends on your environment:
+
+- macOS: `pbcopy` and `pbpaste` (built in)
+- Termux: [`termux-api`](https://wiki.termux.com/wiki/Termux:API) (provides `termux-clipboard-get` and `termux-clipboard-set`)
+- Wayland: [`wl-clipboard`](https://github.com/bugaevc/wl-clipboard) (provides `wl-copy` and `wl-paste`)
+- X11: [`xsel`](https://github.com/kfish/xsel)
+
+Install missing dependencies using your package manager:
+
+```shell
+# Debian/Ubuntu
+# Wayland
+apt install wl-clipboard
+# X11
+apt install xsel
+
+# FreeBSD
+# Wayland
+pkg install wl-clipboard
+# X11
+pkg install xsel
+
+# Termux
+# 1. Install the Termux:API app.
+# 2. Install the package in Termux:
+pkg install termux-api
+```
+
 ## Installation
 
 You may need to add `~/.local/bin/` to `PATH`.
 
 ```shell
+install -d ~/.local/bin/
 install pb ~/.local/bin/
 cd ~/.local/bin/
 ln -s pb pbcopy
