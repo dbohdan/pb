@@ -1,10 +1,11 @@
 # pb
 
-**pb** is a copy and paste command wrapper for X11, Wayland, Termux (Android), and macOS modeled on macOS [`pbcopy`](https://ss64.com/mac/pbcopy.html) and [`pbpaste`](https://ss64.com/mac/pbpaste.html).
-It is written in POSIX shell.
+**pb** is a POSIX shell script that provides a command-line interface to text copy/paste in X11, Wayland, Termux (Android), and macOS.
+Its commands are modeled on macOS [`pbcopy`](https://ss64.com/mac/pbcopy.html) and [`pbpaste`](https://ss64.com/mac/pbpaste.html).
 
 I am not a current Mac user, but I found `pbcopy` and `pbpaste` the best common names for these commands.
 They are concise, memorable, and don't conflict with [POSIX `paste`](https://en.wikipedia.org/wiki/Paste_(Unix)).
+pb supports macOS, which already has `pbcopy` and `pbpaste`, for uniformity.
 
 ## Usage
 

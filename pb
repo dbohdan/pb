@@ -1,5 +1,7 @@
 #! /bin/sh
-# A copy and paste command for X11, Wayland, Termux, and macOS.
+# pb is a POSIX shell script that provides a command-line interface
+# to text copy/paste in X11, Wayland, Termux (Android), and macOS.
+# Its commands are modeled on macOS `pbcopy` and `pbpaste`.
 # https://github.com/dbohdan/pb
 # License: MIT
 set -eu
